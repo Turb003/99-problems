@@ -73,31 +73,39 @@
 ;; Transform a list, possibly holding lists as elements into a `flat' list by
 ;; replacing each list with its elements (recursively).
 
+(append '(1 2 3 4) '(5 6 7))
+
 (defun my-flatten (xs)
-	(cond ((null xs)
-				nil)
-				((listp (car xs)) (cons (my-flatten (car xs))
-																(my-flatten (cdr xs))))
-				(t (cons (car xs) (my-flatten (cdr xs))))))
+	(if (null xs)
+			nil
+		(let ((x (car xs)))
+			(if (listp x)
+					(append (my-flatten x) (my-flatten (cdr xs)))
+				(cons x (my-flatten (cdr xs)))))))
 
 (my-flatten '(a (b (c d) e)))
-;; (A B C D E)
-
-;; Hint: Use the predefined functions list and append.
+;; (a b c d e)
 
 ;; 8. (**) Eliminate consecutive duplicates of list elements.
 
 ;; If a list contains repeated elements they should be replaced with a single
 ;; copy of the element. The order of the elements should not be changed.
 
-;; Example:
-;; * (compress '(a a a a b c c a a d e e e e))
-;; (A B C A D E)
+(defun my-compress (xs)
+	(cond ((null xs) nil)
+				((null (cdr xs)) xs)
+				((equal (car xs) (cadr xs)) (my-compress (cdr xs)))
+				(t (cons (car xs) (my-compress (cdr xs))))))
+
+(my-compress '(a a a a b c c a a d e e e e))
+;; (a b c a d e)
 
 ;; 9. (**) Pack consecutive duplicates of list elements into sublists.
 
 ;; If a list contains repeated elements they should be placed in separate
 ;; sublists.
+
+
 
 ;; Example:
 ;; * (pack '(a a a a b c c a a d e e e e))
