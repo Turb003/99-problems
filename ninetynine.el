@@ -27,7 +27,7 @@
         (t (my-but-last (cdr xs)))))
 
 (my-but-last '(a b c d))
-;; (c d)
+;; ==> (c d)
 
 ;; 3. (*) Find the K'th element of a list.
 
@@ -38,7 +38,7 @@
         (t (my-element-at (cdr xs) (- n 1)))))
 
 (my-element-at '(a b c d e) 2)
-;; c
+;; ==> c
 
 ;; 4. (*) Find the number of elements of a list.
 
@@ -47,7 +47,7 @@
         (t (+ 1 (my-length (cdr xs))))))
 
 (my-length '(1 3 5 7))
-;; 4
+;; ==> 4
 
 ;; 5. (*) Reverse a list.
 
@@ -57,6 +57,7 @@
 									 (cons (car xs) nil)))))
 
 (my-rev '(1 2 3 4))
+;; ==> (4 3 2 1)
 
 ;; 6. (*) Find out whether a list is a palindrome.
 
@@ -64,16 +65,15 @@
 	(equal xs (my-rev xs)))
 
 (is-palindrome '(x a m a x))
-;; t
+;; ==> t
+
 (is-palindrome '(x a m x))
-;; nil
+;; ==> nil
 
 ;; 7. (**) Flatten a nested list structure.
 
 ;; Transform a list, possibly holding lists as elements into a `flat' list by
 ;; replacing each list with its elements (recursively).
-
-(append '(1 2 3 4) '(5 6 7))
 
 (defun my-flatten (xs)
 	(if (null xs)
@@ -84,7 +84,7 @@
 				(cons x (my-flatten (cdr xs)))))))
 
 (my-flatten '(a (b (c d) e)))
-;; (a b c d e)
+;; ==> (a b c d e)
 
 ;; 8. (**) Eliminate consecutive duplicates of list elements.
 
@@ -97,7 +97,7 @@
 				(t (cons (car xs) (my-compress (cdr xs))))))
 
 (my-compress '(a a a a b c c a a d e e e e))
-;; (a b c a d e)
+;; ==> (a b c a d e)
 
 ;; 9. (**) Pack consecutive duplicates of list elements into sublists.
 
@@ -112,7 +112,7 @@
 	 (my-pack-aux xs '()))
 
 (my-pack '(a a a a b c c a a d e e e e))
-;; ((a a a a) (b) (c c) (a a) (d) (e e e e))
+;; ==> ((a a a a) (b) (c c) (a a) (d) (e e e e))
 
 ;; 10. (*) Run-length encoding of a list.
 
@@ -128,7 +128,7 @@
 	(my-encode-aux (my-pack xs)))
 
 (my-encode '(a a a a b c c a a d e e e e))
-;; ((4 a) (1 b) (2 c) (2 a) (1 d) (4 e))
+;; ==> ((4 a) (1 b) (2 c) (2 a) (1 d) (4 e))
 
 ;; 11. (*) Modified run-length encoding.
 
@@ -144,7 +144,7 @@
 	(my-encode-modified-aux (my-encode xs)))
 
 (my-encode-modified '(a a a a b c c a a d e e e e))
-;; ((4 a) b (2 c) (2 a) d (4 e))
+;; ==> ((4 a) b (2 c) (2 a) d (4 e))
 
 ;; 12. (**) Decode a run-length encoded list.
 
