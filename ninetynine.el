@@ -93,7 +93,6 @@
 
 (defun my-compress (xs)
 	(cond ((null xs) nil)
-				((null (cdr xs)) xs)
 				((equal (car xs) (cadr xs)) (my-compress (cdr xs)))
 				(t (cons (car xs) (my-compress (cdr xs))))))
 
@@ -105,11 +104,15 @@
 ;; If a list contains repeated elements they should be placed in separate
 ;; sublists.
 
+(defun my-pack (xs)
+	(defun my-pack-aux (xs ys)
+		 (cond ((null xs) nil)
+					 ((equal (car xs) (cadr xs)) (my-pack-aux (cdr xs) (cons (car xs) ys)))
+					 (t (cons (cons (car xs) ys) (my-pack-aux (cdr xs) '())))))
+	 (my-pack-aux xs '()))
 
-
-;; Example:
-;; * (pack '(a a a a b c c a a d e e e e))
-;; ((A A A A) (B) (C C) (A A) (D) (E E E E))
+(my-pack '(a a a a b c c a a d e e e e))
+;; ((a a a a) (b) (c c) (a a) (d) (e e e e))
 
 ;; 10. (*) Run-length encoding of a list.
 
@@ -117,9 +120,15 @@
 ;; data compression method. Consecutive duplicates of elements are encoded as
 ;; lists (N E) where N is the number of duplicates of the element E.
 
-;; Example:
-;; * (encode '(a a a a b c c a a d e e e e))
-;; ((4 A) (1 B) (2 C) (2 A) (1 D)(4 E))
+(defun my-encode (xs)
+	(defun my-encode-aux (xs)
+		(cond ((null xs) nil)
+					(t (cons (cons (my-length (car xs)) (cons (caar xs) nil))
+									 (my-encode-aux (cdr xs))))))
+	(my-encode-aux (my-pack xs)))
+
+(my-encode '(a a a a b c c a a d e e e e))
+;; ((4 a) (1 b) (2 c) (2 a) (1 d) (4 e))
 
 ;; 11. (*) Modified run-length encoding.
 
