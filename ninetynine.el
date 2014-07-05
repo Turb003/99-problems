@@ -54,7 +54,7 @@
 (defun my-rev (xs)
   (cond ((null xs) nil)
         (t (append (my-rev (cdr xs))
-									 (cons (car xs) nil)))))
+                   (cons (car xs) nil)))))
 
 (my-rev '(1 2 3 4))
 ;; ==> (4 3 2 1)
@@ -62,7 +62,7 @@
 ;; 6. (*) Find out whether a list is a palindrome.
 
 (defun is-palindrome (xs)
-	(equal xs (my-rev xs)))
+  (equal xs (my-rev xs)))
 
 (is-palindrome '(x a m a x))
 ;; ==> t
@@ -76,12 +76,12 @@
 ;; replacing each list with its elements (recursively).
 
 (defun my-flatten (xs)
-	(if (null xs)
-			nil
-		(let ((x (car xs)))
-			(if (listp x)
-					(append (my-flatten x) (my-flatten (cdr xs)))
-				(cons x (my-flatten (cdr xs)))))))
+  (if (null xs)
+      nil
+    (let ((x (car xs)))
+      (if (listp x)
+          (append (my-flatten x) (my-flatten (cdr xs)))
+        (cons x (my-flatten (cdr xs)))))))
 
 (my-flatten '(a (b (c d) e)))
 ;; ==> (a b c d e)
@@ -92,9 +92,9 @@
 ;; copy of the element. The order of the elements should not be changed.
 
 (defun my-compress (xs)
-	(cond ((null xs) nil)
-				((equal (car xs) (cadr xs)) (my-compress (cdr xs)))
-				(t (cons (car xs) (my-compress (cdr xs))))))
+  (cond ((null xs) nil)
+        ((equal (car xs) (cadr xs)) (my-compress (cdr xs)))
+        (t (cons (car xs) (my-compress (cdr xs))))))
 
 (my-compress '(a a a a b c c a a d e e e e))
 ;; ==> (a b c a d e)
@@ -105,11 +105,11 @@
 ;; sublists.
 
 (defun my-pack (xs)
-	(defun my-pack-aux (xs ys)
-		 (cond ((null xs) nil)
-					 ((equal (car xs) (cadr xs)) (my-pack-aux (cdr xs) (cons (car xs) ys)))
-					 (t (cons (cons (car xs) ys) (my-pack-aux (cdr xs) '())))))
-	 (my-pack-aux xs '()))
+  (defun my-pack-aux (xs ys)
+     (cond ((null xs) nil)
+           ((equal (car xs) (cadr xs)) (my-pack-aux (cdr xs) (cons (car xs) ys)))
+           (t (cons (cons (car xs) ys) (my-pack-aux (cdr xs) '())))))
+   (my-pack-aux xs '()))
 
 (my-pack '(a a a a b c c a a d e e e e))
 ;; ==> ((a a a a) (b) (c c) (a a) (d) (e e e e))
@@ -121,11 +121,11 @@
 ;; lists (N E) where N is the number of duplicates of the element E.
 
 (defun my-encode (xs)
-	(defun my-encode-aux (xs)
-		(cond ((null xs) nil)
-					(t (cons (cons (my-length (car xs)) (cons (caar xs) nil))
-									 (my-encode-aux (cdr xs))))))
-	(my-encode-aux (my-pack xs)))
+  (defun my-encode-aux (xs)
+    (cond ((null xs) nil)
+          (t (cons (cons (my-length (car xs)) (cons (caar xs) nil))
+                   (my-encode-aux (cdr xs))))))
+  (my-encode-aux (my-pack xs)))
 
 (my-encode '(a a a a b c c a a d e e e e))
 ;; ==> ((4 a) (1 b) (2 c) (2 a) (1 d) (4 e))
@@ -137,11 +137,11 @@
 ;; duplicates are transferred as (N E) lists.
 
 (defun my-encode-modified (xs)
-	(defun my-encode-modified-aux (xs)
-		(cond ((null xs) nil)
-					((= 1 (caar xs)) (cons (cadar xs) (my-encode-modified-aux (cdr xs))))
-					(t (cons (car xs) (my-encode-modified-aux (cdr xs))))))
-	(my-encode-modified-aux (my-encode xs)))
+  (defun my-encode-modified-aux (xs)
+    (cond ((null xs) nil)
+          ((= 1 (caar xs)) (cons (cadar xs) (my-encode-modified-aux (cdr xs))))
+          (t (cons (car xs) (my-encode-modified-aux (cdr xs))))))
+  (my-encode-modified-aux (my-encode xs)))
 
 (my-encode-modified '(a a a a b c c a a d e e e e))
 ;; ==> ((4 a) b (2 c) (2 a) d (4 e))
