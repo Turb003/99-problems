@@ -136,9 +136,15 @@
 ;; duplicates it is simply copied into the result list. Only elements with
 ;; duplicates are transferred as (N E) lists.
 
-;; Example:
-;; * (encode-modified '(a a a a b c c a a d e e e e))
-;; ((4 A) B (2 C) (2 A) D (4 E))
+(defun my-encode-modified (xs)
+	(defun my-encode-modified-aux (xs)
+		(cond ((null xs) nil)
+					((= 1 (caar xs)) (cons (cadar xs) (my-encode-modified-aux (cdr xs))))
+					(t (cons (car xs) (my-encode-modified-aux (cdr xs))))))
+	(my-encode-modified-aux (my-encode xs)))
+
+(my-encode-modified '(a a a a b c c a a d e e e e))
+;; ((4 a) b (2 c) (2 a) d (4 e))
 
 ;; 12. (**) Decode a run-length encoded list.
 
