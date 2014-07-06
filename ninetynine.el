@@ -151,6 +151,36 @@
 ;; Given a run-length code list generated as specified in problem P11. Construct
 ;; its uncompressed version.
 
+(defun create-constant-list (n c)
+	(if (= n 0)
+			nil
+		(cons c (create-constant-list (- n 1) c))))
+
+(create-constant-list 5 'c)
+;; ==> (c c c c c)
+
+(defun my-decode (xs)
+	(defun my-decode-aux (xs)
+		(if (null xs)
+				nil
+			(append (create-constant-list (caar xs) (cadar xs))
+						(my-decode-aux (cdr xs)))))
+	(my-decode-aux xs))
+
+(my-decode '((4 a) (1 b) (2 c) (2 a) (1 d) (4 e)))
+;; ==> (a a a a b c c a a d e e e e))
+
+(defun my-decode-modified (xs)
+	(defun my-decode-modified-aux (xs)
+		(cond ((null xs) nil)
+					((not (listp (car xs))) (cons (cons 1 (cons (car xs) '()))
+																				(my-decode-modified-aux (cdr xs))))
+					(t (cons (car xs) (my-decode-modified-aux (cdr xs))))))
+	(my-decode (my-decode-modified-aux xs)))
+
+(my-decode-modified '((4 a) b (2 c) (2 a) d (4 e)))
+;; ==> (a a a a b c c a a d e e e e))
+
 ;; 13. (**) Run-length encoding of a list (direct solution).
 
 ;; Implement the so-called run-length encoding data compression method
