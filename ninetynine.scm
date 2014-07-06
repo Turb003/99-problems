@@ -1,4 +1,4 @@
-;; ninetynine.el
+;; ninetynine.scm
 ;; author: Peter Urbak
 ;; version: 2014-04-24
 
@@ -10,21 +10,21 @@
 
 ;; 1. (*) Find last box of a list
 
-(defun my-last (xs)
-  (cond ((null xs) nil)
-        ((null (cdr xs)) xs)
-        (t (my-last (cdr xs)))))
+(define (my-last xs)
+  (cond ((null? xs) null)
+        ((null? (cdr xs)) xs)
+        (else (my-last (cdr xs)))))
 
 (my-last '(a b c d))
 ;; ==> (d)
 
 ;; 2. (*) Find the last but one box of a list.
 
-(defun my-but-last (xs)
-  (cond ((or (null xs)
-             (null (cdr xs))) nil)
-        ((null (cddr xs)) xs)
-        (t (my-but-last (cdr xs)))))
+(define (my-but-last xs)
+  (cond ((or (null? xs)
+             (null? (cdr xs))) null)
+        ((null? (cddr xs)) xs)
+        (else (my-but-last (cdr xs)))))
 
 (my-but-last '(a b c d))
 ;; ==> (c d)
@@ -32,54 +32,54 @@
 ;; 3. (*) Find the K'th element of a list.
 
 ;; Indexed from 0
-(defun my-element-at (xs n)
+(define (my-element-at xs n)
   (cond ((<= n 0) (car xs))
-        ((null xs) nil)
-        (t (my-element-at (cdr xs) (- n 1)))))
+        ((null? xs) null)
+        (else (my-element-at (cdr xs) (- n 1)))))
 
 (my-element-at '(a b c d e) 2)
 ;; ==> c
 
 ;; 4. (*) Find the number of elements of a list.
 
-(defun my-length (xs)
-  (cond ((null xs) 0)
-        (t (+ 1 (my-length (cdr xs))))))
+(define (my-length xs)
+  (cond ((null? xs) 0)
+        (else (+ 1 (my-length (cdr xs))))))
 
 (my-length '(1 3 5 7))
 ;; ==> 4
 
 ;; 5. (*) Reverse a list.
 
-(defun my-rev (xs)
-  (cond ((null xs) nil)
-        (t (append (my-rev (cdr xs))
-                   (cons (car xs) nil)))))
+(define (my-rev xs)
+  (cond ((null? xs) null)
+        (else (append (my-rev (cdr xs))
+                   (cons (car xs) null)))))
 
 (my-rev '(1 2 3 4))
 ;; ==> (4 3 2 1)
 
 ;; 6. (*) Find out whether a list is a palindrome.
 
-(defun is-palindrome (xs)
-  (equal xs (my-rev xs)))
+(define (is-palindrome xs)
+  (equal? xs (my-rev xs)))
 
 (is-palindrome '(x a m a x))
-;; ==> t
+;; ==> #t
 
 (is-palindrome '(x a m x))
-;; ==> nil
+;; ==> #f
 
 ;; 7. (**) Flatten a nested list structure.
 
 ;; Transform a list, possibly holding lists as elements into a `flat' list by
 ;; replacing each list with its elements (recursively).
 
-(defun my-flatten (xs)
-  (if (null xs)
-      nil
+(define (my-flatten xs)
+  (if (null? xs)
+      null
     (let ((x (car xs)))
-      (if (listp x)
+      (if (list? x)
           (append (my-flatten x) (my-flatten (cdr xs)))
         (cons x (my-flatten (cdr xs)))))))
 
@@ -91,10 +91,12 @@
 ;; If a list contains repeated elements they should be replaced with a single
 ;; copy of the element. The order of the elements should not be changed.
 
-(defun my-compress (xs)
-  (cond ((null xs) nil)
-        ((equal (car xs) (cadr xs)) (my-compress (cdr xs)))
-        (t (cons (car xs) (my-compress (cdr xs))))))
+(define (my-compress xs)
+  (cond ((null? xs) null)
+        ((and (not (null? (cdr xs)))
+              (equal? (car xs) (car (cdr xs))))
+         (my-compress (cdr xs)))
+        (else (cons (car xs) (my-compress (cdr xs))))))
 
 (my-compress '(a a a a b c c a a d e e e e))
 ;; ==> (a b c a d e)
@@ -104,11 +106,13 @@
 ;; If a list contains repeated elements they should be placed in separate
 ;; sublists.
 
-(defun my-pack (xs)
-  (defun my-pack-aux (xs ys)
-     (cond ((null xs) nil)
-           ((equal (car xs) (cadr xs)) (my-pack-aux (cdr xs) (cons (car xs) ys)))
-           (t (cons (cons (car xs) ys) (my-pack-aux (cdr xs) '())))))
+(define (my-pack xs)
+  (define (my-pack-aux xs ys)
+     (cond ((null? xs) null)
+           ((and (not (null? (cdr xs)))
+                 (equal? (car xs) (cadr xs)))
+            (my-pack-aux (cdr xs) (cons (car xs) ys)))
+           (else (cons (cons (car xs) ys) (my-pack-aux (cdr xs) '())))))
    (my-pack-aux xs '()))
 
 (my-pack '(a a a a b c c a a d e e e e))
@@ -120,10 +124,10 @@
 ;; data compression method. Consecutive duplicates of elements are encoded as
 ;; lists (N E) where N is the number of duplicates of the element E.
 
-(defun my-encode (xs)
-  (defun my-encode-aux (xs)
-    (cond ((null xs) nil)
-          (t (cons (cons (my-length (car xs)) (cons (caar xs) nil))
+(define (my-encode xs)
+  (define (my-encode-aux xs)
+    (cond ((null? xs) null)
+          (else (cons (cons (my-length (car xs)) (cons (caar xs) null))
                    (my-encode-aux (cdr xs))))))
   (my-encode-aux (my-pack xs)))
 
@@ -136,11 +140,11 @@
 ;; duplicates it is simply copied into the result list. Only elements with
 ;; duplicates are transferred as (N E) lists.
 
-(defun my-encode-modified (xs)
-  (defun my-encode-modified-aux (xs)
-    (cond ((null xs) nil)
+(define (my-encode-modified xs)
+  (define (my-encode-modified-aux xs)
+    (cond ((null? xs) null)
           ((= 1 (caar xs)) (cons (cadar xs) (my-encode-modified-aux (cdr xs))))
-          (t (cons (car xs) (my-encode-modified-aux (cdr xs))))))
+          (else (cons (car xs) (my-encode-modified-aux (cdr xs))))))
   (my-encode-modified-aux (my-encode xs)))
 
 (my-encode-modified '(a a a a b c c a a d e e e e))
@@ -151,32 +155,32 @@
 ;; Given a run-length code list generated as specified in problem P11. Construct
 ;; its uncompressed version.
 
-(defun create-constant-list (n c)
-	(if (= n 0)
-			nil
-		(cons c (create-constant-list (- n 1) c))))
+(define (create-constant-list n c)
+  (if (= n 0)
+      null
+    (cons c (create-constant-list (- n 1) c))))
 
 (create-constant-list 5 'c)
 ;; ==> (c c c c c)
 
-(defun my-decode (xs)
-	(defun my-decode-aux (xs)
-		(if (null xs)
-				nil
-			(append (create-constant-list (caar xs) (cadar xs))
-						(my-decode-aux (cdr xs)))))
-	(my-decode-aux xs))
+(define (my-decode xs)
+  (define (my-decode-aux xs)
+    (if (null? xs)
+        null
+        (append (create-constant-list (caar xs) (cadar xs))
+                (my-decode-aux (cdr xs)))))
+  (my-decode-aux xs))
 
 (my-decode '((4 a) (1 b) (2 c) (2 a) (1 d) (4 e)))
 ;; ==> (a a a a b c c a a d e e e e))
 
-(defun my-decode-modified (xs)
-	(defun my-decode-modified-aux (xs)
-		(cond ((null xs) nil)
-					((not (listp (car xs))) (cons (cons 1 (cons (car xs) '()))
-																				(my-decode-modified-aux (cdr xs))))
-					(t (cons (car xs) (my-decode-modified-aux (cdr xs))))))
-	(my-decode (my-decode-modified-aux xs)))
+(define (my-decode-modified xs)
+  (define (my-decode-modified-aux xs)
+    (cond ((null? xs) null)
+          ((not (list? (car xs))) (cons (cons 1 (cons (car xs) '()))
+                                        (my-decode-modified-aux (cdr xs))))
+          (else (cons (car xs) (my-decode-modified-aux (cdr xs))))))
+  (my-decode (my-decode-modified-aux xs)))
 
 (my-decode-modified '((4 a) b (2 c) (2 a) d (4 e)))
 ;; ==> (a a a a b c c a a d e e e e))
@@ -547,16 +551,16 @@
 
 ;; A binary tree is either empty or it is composed of a root element and two
 ;; successors, which are binary trees themselves.  In Lisp we represent the
-;; empty tree by 'nil' and the non-empty tree by the list (X L R), where X
+;; empty tree by 'null' and the non-empty tree by the list (X L R), where X
 ;; denotes the root node and L and R denote the left and right subtree,
 ;; respectively. The example tree depicted opposite is therefore represented by
 ;; the following list:
 
-;; (a (b (d nil nil) (e nil nil)) (c nil (f (g nil nil) nil)))
+;; (a (b (d null null) (e null null)) (c null (f (g null null) null)))
 
 ;; Other examples are a binary tree that consists of a root node only:
 
-;; (a nil nil) or an empty binary tree: nil.
+;; (a null null) or an empty binary tree: null.
 
 ;; You can check your predicates using these example trees. They are given as
 ;; test cases in p54.lisp.
@@ -564,8 +568,8 @@
 ;; 54A. (*) Check whether a given term represents a binary tree
 
 ;; Write a predicate istree which returns true if and only if its argument is a
-;; list representing a binary tree.  Example: * (istree (a (b nil nil) nil)) T *
-;; (istree (a (b nil nil))) NIL
+;; list representing a binary tree.  Example: * (istree (a (b null null) null)) T *
+;; (istree (a (b null null))) NULL
 
 ;; 55. (**) Construct completely balanced binary
 ;; trees In a completely balanced binary tree, the following property holds for
@@ -579,8 +583,8 @@
 
 ;; Example:
 ;; * cbal-tree(4,T).
-;; T = t(x, t(x, nil, nil), t(x, nil, t(x, nil, nil))) ;
-;; T = t(x, t(x, nil, nil), t(x, t(x, nil, nil), nil)) ;
+;; T = t(x, t(x, null, null), t(x, null, t(x, null, null))) ;
+;; T = t(x, t(x, null, null), t(x, t(x, null, null), null)) ;
 ;; etc......No
 
 ;; 56. (**) Symmetric binary trees
@@ -599,7 +603,7 @@
 
 ;; Example:
 ;; * construct([3,2,5,7,1],T).
-;; T = t(3, t(2, t(1, nil, nil), nil), t(5, nil, t(7, nil, nil)))
+;; T = t(3, t(2, t(1, null, null), null), t(5, null, t(7, null, null)))
 
 ;; Then use this predicate to test the solution of the problem P56.
 ;; Example:
@@ -615,8 +619,8 @@
 
 ;; Example:
 ;; * sym-cbal-trees(5,Ts).
-;; Ts = [t(x, t(x, nil, t(x, nil, nil)), t(x, t(x, nil, nil), nil)), t(x, t(x,
-;; t(x, nil, nil), nil), t(x, nil, t(x, nil, nil)))]
+;; Ts = [t(x, t(x, null, t(x, null, null)), t(x, t(x, null, null), null)), t(x, t(x,
+;; t(x, null, null), null), t(x, null, t(x, null, null)))]
 
 ;; How many such trees are there with 57 nodes? Investigate about how many
 ;; solutions there are for a given number of nodes? What if the number is even?
@@ -636,9 +640,9 @@
 
 ;; * hbal-tree(3,T).
 
-;; T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), t(x, nil,
-;; nil))) ;
-;; T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), nil)) ;
+;; T = t(x, t(x, t(x, null, null), t(x, null, null)), t(x, t(x, null, null), t(x, null,
+;; null))) ;
+;; T = t(x, t(x, t(x, null, null), t(x, null, null)), t(x, t(x, null, null), null)) ;
 ;; etc......No
 
 ;; 60. (**) Construct height-balanced binary trees with a given number of nodes
@@ -706,7 +710,7 @@
 ;; which may contain less than the maximum possible number of nodes, all the
 ;; nodes are "left-adjusted". This means that in a levelorder tree traversal all
 ;; internal nodes come first, the leaves come second, and empty successors (the
-;; nil's which are not really nodes!) come last.
+;; null's which are not really nodes!) come last.
 
 ;; Particularly, complete binary trees are used as data structures (or
 ;; addressing schemes) for heaps.
@@ -725,7 +729,7 @@
 
 ;; 64. (**) Layout a binary tree (1)
 
-;; Given a binary tree as the usual Prolog term t(X,L,R) (or nil). As a
+;; Given a binary tree as the usual Prolog term t(X,L,R) (or null). As a
 ;; preparation for drawing the tree, a layout algorithm is required to determine
 ;; the position of each node in a rectangular grid. Several layout methods are
 ;; conceivable, one of them is shown in the illustration below.
@@ -740,7 +744,7 @@
 ;; In order to store the position of the nodes, we extend the Prolog term
 ;; representing a node (and its successors) as follows:
 
-;; % nil represents the empty tree (as usual) % t(W,X,Y,L,R) represents a
+;; % null represents the empty tree (as usual) % t(W,X,Y,L,R) represents a
 ;; (non-empty) binary tree with root W "positioned" at (X,Y), and subtrees L and
 ;; R
 
@@ -783,7 +787,7 @@
 ;; a(b(d,e),c(,f(g,)))
 
 ;; a) Write a Prolog predicate which generates this string representation, if
-;; the tree is given as usual (as nil or t(X,L,R) term). Then write a predicate
+;; the tree is given as usual (as null or t(X,L,R) term). Then write a predicate
 ;; which does this inverse; i.e. given the string representation, construct the
 ;; tree in the usual form. Finally, combine the two predicates in a single
 ;; predicate tree-string/2 which can be used in both directions.
@@ -824,7 +828,7 @@
 ;; We consider again binary trees with nodes that are identified by single
 ;; lower-case letters, as in the example of problem P67. Such a tree can be
 ;; represented by the preorder sequence of its nodes in which dots (.) are
-;; inserted where an empty subtree (nil) is encountered during the tree
+;; inserted where an empty subtree (null) is encountered during the tree
 ;; traversal. For example, the tree shown in problem P67 is represented as
 ;; 'abd..e..c.fg...'. First, try to establish a syntax (BNF or syntax diagrams)
 ;; and then write a predicate tree-dotstring/2 which does the conversion in both
