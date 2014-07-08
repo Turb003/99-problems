@@ -238,13 +238,10 @@
   (define (my-drop-aux xs n m)
     (if (null? xs)
         null
-        (if (= m 0)
+        (if (<= m 1)
             (my-drop-aux (cdr xs) n n)
             (cons (car xs) (my-drop-aux (cdr xs) n (- m 1))))))
-  ;; sanity checking
-  (if (<= n 0)
-      xs ; arbitrary choice
-      (my-drop-aux xs (- n 1) (- n 1))))
+  (my-drop-aux xs n n))
 
 (my-drop '(a b c d e f g h i k) 3)
 ;; ==> (a b d e g h k)
@@ -288,15 +285,23 @@
 
 ;; 19. (**) Rotate a list N places to the left.
 
-;; Examples:
-;; * (rotate '(a b c d e f g h) 3)
-;; (D E F G H A B C)
-
-;; * (rotate '(a b c d e f g h) -2)
-;; (G H A B C D E F)
-
 ;; Hint: Use the predefined functions length and append, as well as the result
 ;; of problem P17.
+
+(define (my-rotate xs n)
+  (if (or (null? xs) (= n 0))
+      xs
+      (if (> n 0)
+          (let ([ys (my-split xs n)])
+            (append (cadr ys) (car ys)))
+          (let ([ys (my-split xs (+ n (my-length xs)))])
+            (append (cadr ys) (car ys))))))
+
+(my-rotate '(a b c d e f g h) 3)
+;; (d e f g h a b c)
+
+(my-rotate '(a b c d e f g h) -2)
+;; (g h a b c d e f)
 
 ;; 20. (*) Remove the K'th element from a list.
 
