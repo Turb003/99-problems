@@ -22,7 +22,8 @@
 
 (define (my-but-last xs)
   (cond ((or (null? xs)
-             (null? (cdr xs))) null)
+             (null? (cdr xs)))
+         '())
         ((null? (cddr xs)) xs)
         (else (my-but-last (cdr xs)))))
 
@@ -305,9 +306,16 @@
 
 ;; 20. (*) Remove the K'th element from a list.
 
-;; Example:
-;; * (remove-at '(a b c d) 2)
-;; (A C D)
+(define (my-remove-at xs n)
+  (if (or (null? xs) (= n 0))
+      xs
+      (if (= n 1)
+          (cdr xs)
+          (cons (car xs)
+                (my-remove-at (cdr xs) (- n 1))))))
+
+(my-remove-at '(a b c d) 2)
+;; (a c d)
 
 ;; 21. (*) Insert an element at a given position into a list.
 
