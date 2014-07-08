@@ -61,13 +61,13 @@
 
 ;; 6. (*) Find out whether a list is a palindrome.
 
-(define (is-palindrome xs)
+(define (my-is-palindrome xs)
   (equal? xs (my-rev xs)))
 
-(is-palindrome '(x a m a x))
+(my-is-palindrome '(x a m a x))
 ;; ==> #t
 
-(is-palindrome '(x a m x))
+(my-is-palindrome '(x a m x))
 ;; ==> #f
 
 ;; 7. (**) Flatten a nested list structure.
@@ -155,19 +155,19 @@
 ;; Given a run-length code list generated as specified in problem P11. Construct
 ;; its uncompressed version.
 
-(define (create-constant-list n c)
+(define (my-create-constant-list n c)
   (if (= n 0)
       null
-    (cons c (create-constant-list (- n 1) c))))
+    (cons c (my-create-constant-list (- n 1) c))))
 
-(create-constant-list 5 'c)
+(my-create-constant-list 5 'c)
 ;; ==> (c c c c c)
 
 (define (my-decode xs)
   (define (my-decode-aux xs)
     (if (null? xs)
         null
-        (append (create-constant-list (caar xs) (cadar xs))
+        (append (my-create-constant-list (caar xs) (cadar xs))
                 (my-decode-aux (cdr xs)))))
   (my-decode-aux xs))
 
@@ -206,13 +206,20 @@
     (my-encode-direct-aux xs 0))
 
 (my-encode-direct '(a a a a b c c a a d e e e e))
-;; ((4 A) B (2 C) (2 A) D (4 E))
+;; ((4 a) b (2 c) (2 a) d (4 e))
 
 ;; 14. (*) Duplicate the elements of a list.
 
-;; Example:
-;; * (dupli '(a b c c d))
-;; (A A B B C C C C D D)
+(define (my-duplicate xs)
+  (if (null? xs)
+      null
+      (let ([x (car xs)])
+        (cons x
+              (cons x
+                    (my-duplicate (cdr xs)))))))
+
+(my-duplicate '(a b c c d))
+;; (a a b b c c c c d d)
 
 ;; 15. (**) Replicate the elements of a list a given number of times.
 
