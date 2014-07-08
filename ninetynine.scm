@@ -223,15 +223,31 @@
 
 ;; 15. (**) Replicate the elements of a list a given number of times.
 
-;; Example:
-;; * (repli '(a b c) 3)
-;; (A A A B B B C C C)
+(define (my-replicate xs n)
+  (if (null? xs)
+      null
+      (append (my-create-constant-list n (car xs))
+              (my-replicate (cdr xs) n))))
+
+(my-replicate '(a b c) 3)
+;; (a a a b b b c c c)
 
 ;; 16. (**) Drop every N'th element from a list.
 
-;; Example:
-;; * (drop '(a b c d e f g h i k) 3)
-;; (A B D E G H K)
+(define (my-drop xs n)
+  (define (my-drop-aux xs n m)
+    (if (null? xs)
+        null
+        (if (= m 0)
+            (my-drop-aux (cdr xs) n n)
+            (cons (car xs) (my-drop-aux (cdr xs) n (- m 1))))))
+  ;; sanity checking
+  (if (<= n 0)
+      xs ; arbitrary choice
+      (my-drop-aux xs (- n 1) (- n 1))))
+
+(my-drop '(a b c d e f g h i k) 3)
+;; (a b d e g h k)
 
 ;; 17. (*) Split a list into two parts; the length of the first part is given.
 
