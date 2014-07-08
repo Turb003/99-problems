@@ -54,7 +54,7 @@
 (define (my-rev xs)
   (cond ((null? xs) null)
         (else (append (my-rev (cdr xs))
-                   (cons (car xs) null)))))
+                      (cons (car xs) null)))))
 
 (my-rev '(1 2 3 4))
 ;; ==> (4 3 2 1)
@@ -78,10 +78,10 @@
 (define (my-flatten xs)
   (if (null? xs)
       null
-    (let ((x (car xs)))
-      (if (list? x)
-          (append (my-flatten x) (my-flatten (cdr xs)))
-        (cons x (my-flatten (cdr xs)))))))
+      (let ((x (car xs)))
+        (if (list? x)
+            (append (my-flatten x) (my-flatten (cdr xs)))
+            (cons x (my-flatten (cdr xs)))))))
 
 (my-flatten '(a (b (c d) e)))
 ;; ==> (a b c d e)
@@ -108,12 +108,12 @@
 
 (define (my-pack xs)
   (define (my-pack-aux xs ys)
-     (cond ((null? xs) null)
-           ((and (not (null? (cdr xs)))
-                 (equal? (car xs) (cadr xs)))
-            (my-pack-aux (cdr xs) (cons (car xs) ys)))
-           (else (cons (cons (car xs) ys) (my-pack-aux (cdr xs) '())))))
-   (my-pack-aux xs '()))
+    (cond ((null? xs) null)
+          ((and (not (null? (cdr xs)))
+                (equal? (car xs) (cadr xs)))
+           (my-pack-aux (cdr xs) (cons (car xs) ys)))
+          (else (cons (cons (car xs) ys) (my-pack-aux (cdr xs) '())))))
+  (my-pack-aux xs '()))
 
 (my-pack '(a a a a b c c a a d e e e e))
 ;; ==> ((a a a a) (b) (c c) (a a) (d) (e e e e))
@@ -128,7 +128,7 @@
   (define (my-encode-aux xs)
     (cond ((null? xs) null)
           (else (cons (cons (my-length (car xs)) (cons (caar xs) null))
-                   (my-encode-aux (cdr xs))))))
+                      (my-encode-aux (cdr xs))))))
   (my-encode-aux (my-pack xs)))
 
 (my-encode '(a a a a b c c a a d e e e e))
@@ -158,7 +158,7 @@
 (define (my-create-constant-list n c)
   (if (= n 0)
       null
-    (cons c (my-create-constant-list (- n 1) c))))
+      (cons c (my-create-constant-list (- n 1) c))))
 
 (my-create-constant-list 5 'c)
 ;; ==> (c c c c c)
@@ -203,7 +203,7 @@
                           (my-encode-direct-aux (cdr xs) 0))
                     (cons (list (+ 1 n) (car xs))
                           (my-encode-direct-aux (cdr xs) 0))))))
-    (my-encode-direct-aux xs 0))
+  (my-encode-direct-aux xs 0))
 
 (my-encode-direct '(a a a a b c c a a d e e e e))
 ;; ((4 a) b (2 c) (2 a) d (4 e))
@@ -253,8 +253,17 @@
 
 ;; Do not use any predefined predicates.
 
-;; Example:
-;; * (split '(a b c d e f g h i k) 3)
+(define (my-split xs n)
+  (define (my-split-aux xs ys n)
+    (cond ((null? xs)
+           (list ys '()))
+          ((= n 0)
+           (list ys xs))
+          (else
+           (my-split-aux (cdr xs) (append ys (list (car xs))) (- n 1)))))
+  (my-split-aux xs '() n))
+
+(my-split '(a b c d e f g h i k) 3)
 ;; ( (A B C) (D E F G H I K))
 
 ;; 18. (**) Extract a slice from a list.
