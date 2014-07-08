@@ -331,19 +331,43 @@
 
 ;; 22. (*) Create a list containing all integers within a given range.
 
-;; If first argument is smaller than second, produce a list in decreasing order.
-;; Example:
-;; * (range 4 9)
-;; (4 5 6 7 8 9)
+;; If second argument is smaller than the first, produce a list in decreasing
+;; order.
+
+(define (my-range i k)
+  (cond ((< i k)
+         (cons i (my-range (+ i 1) k)))
+        ((> i k)
+         (cons i (my-range (- i 1) k)))
+        (else
+         (cons i '()))))
+
+(my-range 4 9)
+;; ==> (4 5 6 7 8 9)
+
+(my-range 7 3)
+;; ==> (7 6 5 4 3)
 
 ;; 23. (**) Extract a given number of randomly selected elements from a list.
 
 ;; The selected items shall be returned in a list.
-;; Example:
-;; * (rnd-select '(a b c d e f g h) 3)
-;; (E D A)
 
 ;; Hint: Use the built-in random number generator and the result of problem P20.
+
+(define (my-random-select xs n)
+  (let ([random-generator (current-pseudo-random-generator)])
+    (define (my-random-select-aux xs n)
+      (let ([xs-length (my-length xs)])
+        (if (= xs-length n)
+            xs
+            (my-random-select-aux
+             (my-remove-at xs
+                           (+ 1 (random xs-length random-generator)))
+             n))))
+    (my-random-select-aux xs n)))
+
+(my-random-select '(a b c d e f g h) 3)
+;; ==> (e d a)
 
 ;; 24. (*) Lotto: Draw N different random numbers from the set 1..M.
 
