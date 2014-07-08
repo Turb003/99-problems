@@ -183,7 +183,7 @@
   (my-decode (my-decode-modified-aux xs)))
 
 (my-decode-modified '((4 a) b (2 c) (2 a) d (4 e)))
-;; ==> (a a a a b c c a a d e e e e))
+;; ==> (a a a a b c c a a d e e e e)
 
 ;; 13. (**) Run-length encoding of a list (direct solution).
 
@@ -192,8 +192,20 @@
 ;; duplicates, as in problem P09, but only count them. As in problem P11,
 ;; simplify the result list by replacing the singleton lists (1 X) by X.
 
-;; Example:
-;; * (encode-direct '(a a a a b c c a a d e e e e))
+(define (my-encode-direct xs)
+  (define (my-encode-direct-aux xs n)
+    (cond ((null? xs) null)
+          ((and (not (null? (cdr xs)))
+                (equal? (car xs) (cadr xs)))
+           (my-encode-direct-aux (cdr xs) (+ 1 n)))
+          (else (if (= n 0)
+                    (cons (car xs)
+                          (my-encode-direct-aux (cdr xs) 0))
+                    (cons (list (+ 1 n) (car xs))
+                          (my-encode-direct-aux (cdr xs) 0))))))
+    (my-encode-direct-aux xs 0))
+
+(my-encode-direct '(a a a a b c c a a d e e e e))
 ;; ((4 A) B (2 C) (2 A) D (4 E))
 
 ;; 14. (*) Duplicate the elements of a list.
