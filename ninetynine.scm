@@ -282,7 +282,7 @@
          (my-slice (cdr xs) (- i 1) (- k 1)))))
 
 (my-slice '(a b c d e f g h i k) 3 7)
-;; (c d e f g)
+;; ==> (c d e f g)
 
 ;; 19. (**) Rotate a list N places to the left.
 
@@ -299,10 +299,10 @@
             (append (cadr ys) (car ys))))))
 
 (my-rotate '(a b c d e f g h) 3)
-;; (d e f g h a b c)
+;; ==> (d e f g h a b c)
 
 (my-rotate '(a b c d e f g h) -2)
-;; (g h a b c d e f)
+;; ==> (g h a b c d e f)
 
 ;; 20. (*) Remove the K'th element from a list.
 
@@ -315,13 +315,19 @@
                 (my-remove-at (cdr xs) (- n 1))))))
 
 (my-remove-at '(a b c d) 2)
-;; (a c d)
+;; ==> (a c d)
 
 ;; 21. (*) Insert an element at a given position into a list.
 
-;; Example:
-;; * (insert-at 'alfa '(a b c d) 2)
-;; (A ALFA B C D)
+(define (my-insert-at y xs n)
+  (if (or (null? xs) (= n 0))
+      xs
+      (if (= n 1)
+          (cons y xs)
+          (cons (car xs) (my-insert-at y (cdr xs) (- n 1))))))
+
+(my-insert-at 'alfa '(a b c d) 2)
+;; ==> (a alfa b c d)
 
 ;; 22. (*) Create a list containing all integers within a given range.
 
