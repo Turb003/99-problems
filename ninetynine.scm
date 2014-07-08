@@ -206,7 +206,7 @@
   (my-encode-direct-aux xs 0))
 
 (my-encode-direct '(a a a a b c c a a d e e e e))
-;; ((4 a) b (2 c) (2 a) d (4 e))
+;; ==> ((4 a) b (2 c) (2 a) d (4 e))
 
 ;; 14. (*) Duplicate the elements of a list.
 
@@ -219,7 +219,7 @@
                     (my-duplicate (cdr xs)))))))
 
 (my-duplicate '(a b c c d))
-;; (a a b b c c c c d d)
+;; ==> (a a b b c c c c d d)
 
 ;; 15. (**) Replicate the elements of a list a given number of times.
 
@@ -230,7 +230,7 @@
               (my-replicate (cdr xs) n))))
 
 (my-replicate '(a b c) 3)
-;; (a a a b b b c c c)
+;; ==> (a a a b b b c c c)
 
 ;; 16. (**) Drop every N'th element from a list.
 
@@ -247,7 +247,7 @@
       (my-drop-aux xs (- n 1) (- n 1))))
 
 (my-drop '(a b c d e f g h i k) 3)
-;; (a b d e g h k)
+;; ==> (a b d e g h k)
 
 ;; 17. (*) Split a list into two parts; the length of the first part is given.
 
@@ -264,7 +264,7 @@
   (my-split-aux xs '() n))
 
 (my-split '(a b c d e f g h i k) 3)
-;; ( (A B C) (D E F G H I K))
+;; ==> ((a b c) (d e f g h i k))
 
 ;; 18. (**) Extract a slice from a list.
 
@@ -272,9 +272,19 @@
 ;; between the I'th and K'th element of the original list (both limits
 ;; included). Start counting the elements with 1.
 
-;; Example:
-;; * (slice '(a b c d e f g h i k) 3 7)
-;; (C D E F G)
+(define (my-slice xs i k)
+  (cond ((null? xs)
+         '())
+        ((<= i 1)
+         (if (<= k 0)
+             '()
+             (cons (car xs)
+                   (my-slice (cdr xs) (- i 1) (- k 1)))))
+        (else
+         (my-slice (cdr xs) (- i 1) (- k 1)))))
+
+(my-slice '(a b c d e f g h i k) 3 7)
+;; (c d e f g)
 
 ;; 19. (**) Rotate a list N places to the left.
 
