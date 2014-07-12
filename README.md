@@ -1,4 +1,4 @@
 99-problems
 ===========
 
-With apologies to Jay-Z
+A Racket implementation of the 99 Prolog problems originally stated by Werner Hett.
