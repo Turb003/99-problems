@@ -383,9 +383,19 @@
 
 ;; 25. (*) Generate a random permutation of the elements of a list.
 
-;; Example:
-;; * (rnd-permu '(a b c d e f))
-;; (B A D C E F)
+(define (my-random-permutate xs)
+  (let ([random-generator (current-pseudo-random-generator)])
+    (define (my-random-permutate-aux xs)
+      (if (null? xs)
+          '()
+          (let* ([xs-length (my-length xs)]
+                 [i (random xs-length random-generator)])
+            (cons (my-element-at xs i)
+                  (my-random-permutate-aux (my-remove-at xs (+ 1 i)))))))
+    (my-random-permutate-aux xs)))
+
+(my-random-permutate '(a b c d e f))
+;; ==> (f a b e d c)
 
 ;; Hint: Use the solution of problem P23.
 
