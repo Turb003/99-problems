@@ -383,6 +383,8 @@
 
 ;; 25. (*) Generate a random permutation of the elements of a list.
 
+;; Hint: Use the solution of problem P23.
+
 (define (my-random-permutate xs)
   (let ([random-generator (current-pseudo-random-generator)])
     (define (my-random-permutate-aux xs)
@@ -397,8 +399,6 @@
 (my-random-permutate '(a b c d e f))
 ;; ==> (f a b e d c)
 
-;; Hint: Use the solution of problem P23.
-
 ;; 26. (**) Generate the combinations of K distinct objects chosen from the N
 ;; elements of a list
 
@@ -408,8 +408,8 @@
 ;; be great. But we want to really generate all the possibilities in a list.
 
 ;; Example:
-;; * (combination 3 '(a b c d e f))
-;; ((A B C) (A B D) (A B E) ... )
+;; * (my-combination 3 '(a b c d e f))
+;; ==> ((a b c) (a b d) (a b e) ... )
 
 ;; 27. (**) Group the elements of a set into disjoint subsets.
 
@@ -419,7 +419,7 @@
 
 ;; Example:
 ;; * (group3 '(aldo beat carla david evi flip gary hugo ida))
-;; ( ( (ALDO BEAT) (CARLA DAVID EVI) (FLIP GARY HUGO IDA) )
+;; ==> ( ( (ALDO BEAT) (CARLA DAVID EVI) (FLIP GARY HUGO IDA) )
 ;; ... )
 
 ;; b) Generalize the above predicate in a way that we can specify a list of
@@ -427,7 +427,7 @@
 
 ;; Example:
 ;; * (group '(aldo beat carla david evi flip gary hugo ida) '(2 2 5))
-;; ( ( (ALDO BEAT) (CARLA DAVID) (EVI FLIP GARY HUGO IDA) )
+;; ==> ( ( (ALDO BEAT) (CARLA DAVID) (EVI FLIP GARY HUGO IDA) )
 ;; ... )
 
 ;; Note that we do not want permutations of the group members; i.e. ((ALDO BEAT)
@@ -445,7 +445,7 @@
 
 ;; Example:
 ;; * (lsort '((a b c) (d e) (f g h) (d e) (i j k l) (m n) (o)))
-;; ((O) (D E) (D E) (M N) (A B C) (F G H) (I J K L))
+;; ==> ((O) (D E) (D E) (M N) (A B C) (F G H) (I J K L))
 
 ;; b) Again, we suppose that a list contains elements that are lists
 ;; themselves. But this time the objective is to sort the elements of this list
@@ -455,7 +455,7 @@
 
 ;; Example:
 ;; * (lfsort '((a b c) (d e) (f g h) (d e) (i j k l) (m n) (o)))
-;; ((i j k l) (o) (a b c) (f g h) (d e) (d e) (m n))
+;; ==> ((i j k l) (o) (a b c) (f g h) (d e) (d e) (m n))
 
 ;; Note that in the above example, the first two lists in the result have length
 ;; 4 and 1, both lengths appear just once. The third and forth list have length
@@ -464,24 +464,53 @@
 
 ;; 31. (**) Determine whether a given integer number is prime.
 
-;; Example:
-;; * (is-prime 7)
-;; T
+(define (my-is-prime n)
+  (define (my-is-prime-aux n i)
+    (let ([sqrt-n (sqrt n)])
+      (cond ((< sqrt-n i) #t)
+            ((exact-integer? (/ n i)) #f)
+            (else (my-is-prime-aux n (+ 1 i))))))
+  (cond ((< n 2) #f)
+        ((= n 2) #t)
+        (else (my-is-prime-aux n 2))))
+
+(my-is-prime 1)
+;; ==> #f
+(my-is-prime 2)
+;; ==> #t
+(my-is-prime 3)
+;; ==> #t
+(my-is-prime 4)
+;; ==> #f
+(my-is-prime 5)
+;; ==> #t
+(my-is-prime 6)
+;; ==> #f
+(my-is-prime 7)
+;; ==> #t
 
 ;; 32. (**) Determine the greatest common divisor of two positive integer
 ;; numbers.
 
 ;; Use Euclid's algorithm.
-;; Example:
-;; * (gcd 36 63)
-;; 9
+
+(define (my-gcd n m)
+  (if (= m 0)
+      n
+      (my-gcd m (modulo n m))))
+
+(my-gcd 36 63)
+;; ==> 9
 
 ;; 33. (*) Determine whether two positive integer numbers are coprime.
 
 ;; Two numbers are coprime if their greatest common divisor equals 1.
-;; Example:
-;; * (coprime 35 64)
-;; T
+
+(define (my-coprime n m)
+  (= (my-gcd n m) 1))
+
+(my-coprime 35 64)
+;; ==> #t
 
 ;; 34. (**) Calculate Euler's totient function phi(m).
 
@@ -489,28 +518,41 @@
 ;; integers r (1 <= r < m) that are coprime to m.  Example: m = 10: r = 1,3,7,9;
 ;; thus phi(m) = 4. Note the special case: phi(1) = 1.
 
-;; * (totient-phi 10)
-;; 4
-
 ;; Find out what the value of phi(m) is if m is a prime number. Euler's totient
 ;; function plays an important role in one of the most widely used public key
 ;; cryptography methods (RSA). In this exercise you should use the most
 ;; primitive method to calculate this function (there are smarter ways that we
 ;; shall discuss later).
 
+(define (my-totient-phi n)
+  (define (my-totient-phi-aux n i)
+    (cond ((<= n i) 0)
+          ((my-coprime n i) (+ 1 (my-totient-phi-aux n (+ 1 i))))
+          (else (my-totient-phi-aux n (+ 1 i)))))
+  (cond ((< n 1) 0)
+        ((= n 1) 1)
+        (else (my-totient-phi-aux n 1))))
+
+(my-totient-phi 1)
+;; ==> 1
+(my-totient-phi 7)
+;; ==> 6
+(my-totient-phi 10)
+;; ==> 4
+
 ;; 35. (**) Determine the prime factors of a given positive integer.
 
 ;; Construct a flat list containing the prime factors in ascending order.
 ;; Example:
 ;; * (prime-factors 315)
-;; (3 3 5 7)
+;; ==> (3 3 5 7)
 
 ;; 36. (**) Determine the prime factors of a given positive integer (2).
 
 ;; Construct a list containing the prime factors and their multiplicity.
 ;; Example:
 ;; * (prime-factors-mult 315)
-;; ((3 2) (5 1) (7 1))
+;; ==> ((3 2) (5 1) (7 1))
 ;; Hint: The problem is similar to problem P13.
 
 ;; 37. (**) Calculate Euler's totient function phi(m) (improved).
