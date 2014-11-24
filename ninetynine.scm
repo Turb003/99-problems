@@ -8,6 +8,9 @@
 
 ;; # Working with lists
 
+(define (my-first xs)
+  (car xs))
+
 ;; 1. (*) Find last box of a list
 
 (define (my-last xs)
@@ -464,11 +467,14 @@
 
 ;; 31. (**) Determine whether a given integer number is prime.
 
+(define (my-divides n m)
+  (exact-integer? (/ n m)))
+
 (define (my-is-prime n)
   (define (my-is-prime-aux n i)
     (let ([sqrt-n (sqrt n)])
       (cond ((< sqrt-n i) #t)
-            ((exact-integer? (/ n i)) #f)
+            ((my-divides n i) #f)
             (else (my-is-prime-aux n (+ 1 i))))))
   (cond ((< n 2) #f)
         ((= n 2) #t)
@@ -543,17 +549,49 @@
 ;; 35. (**) Determine the prime factors of a given positive integer.
 
 ;; Construct a flat list containing the prime factors in ascending order.
-;; Example:
-;; * (prime-factors 315)
+
+(define (my-map collection function)
+  (define (my-map-aux col fun)
+    (if (null? col)
+        '()
+        (cons (fun (car col))
+              (my-map-aux (cdr col) fun))))
+  (my-map-aux collection function))
+
+(define (my-filter collection predicate)
+  (define (my-filter-aux col pred)
+    (if (null? col)
+        '()
+        (if (pred (car col))
+            (cons (car col) (my-filter-aux (cdr col) pred))
+            (my-filter-aux (cdr col) pred))))
+  (my-filter-aux collection predicate))
+
+(define (my-prime-factors n)
+  (let ([my-primes (my-filter (my-range 2 (ceiling (sqrt n)))
+                              my-is-prime)])
+    (define (my-prime-factors-aux n primes)
+      (if (null? primes)
+          '()
+          (let ([prime (car primes)])
+            (if (my-divides n prime)
+                (cons prime (my-prime-factors-aux (/ n prime) primes))
+                (my-prime-factors-aux n (cdr primes))))))
+    (my-prime-factors-aux n my-primes)))
+
+(my-prime-factors 315)
 ;; ==> (3 3 5 7)
 
 ;; 36. (**) Determine the prime factors of a given positive integer (2).
 
-;; Construct a list containing the prime factors and their multiplicity.
-;; Example:
-;; * (prime-factors-mult 315)
-;; ==> ((3 2) (5 1) (7 1))
 ;; Hint: The problem is similar to problem P13.
+
+(define (my-prime-factors-mult n)
+  (my-map (my-encode (my-prime-factors n))
+       (lambda (pair) (list (my-first (my-last pair)) (my-first pair)))))
+
+(my-prime-factors-mult 315)
+;; ==> ((3 2) (5 1) (7 1))
 
 ;; 37. (**) Calculate Euler's totient function phi(m) (improved).
 
@@ -577,6 +615,12 @@
 
 ;; Given a range of integers by its lower and upper limit, construct a list of
 ;; all prime numbers in that range.
+
+(define (my-primes-range n m)
+  (my-filter (my-range n m) my-is-prime))
+
+(my-primes-range 4 25)
+;; '(5 7 11 13 17 19 23)
 
 ;; 40. (**) Goldbach's conjecture.
 
