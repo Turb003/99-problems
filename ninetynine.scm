@@ -611,6 +611,8 @@
 ;; number of logical inferences as a measure for efficiency. Try to calculate
 ;; phi(10090) as an example.
 
+;; NOTE: Prolog-specific question so will skip it for Racket.
+
 ;; 39. (*) A list of prime numbers.
 
 ;; Given a range of integers by its lower and upper limit, construct a list of
@@ -629,33 +631,69 @@
 ;; famous facts in number theory that has not been proved to be correct in the
 ;; general case. It has been numerically confirmed up to very large numbers
 ;; (much larger than we can go with our Prolog system). Write a predicate to
-;; find the two prime numbers that sum up to a given even integer.  Example: *
-;; (goldbach 28) (5 23)
+;; find the two prime numbers that sum up to a given even integer.
+
+(define (my-goldbach n)
+  (define (test-prime n x ys)
+    (if (null? ys)
+        '()
+        (let ([y (car ys)])
+          (if (= n (+ x y))
+              (cons x y)
+              (test-prime n x (cdr ys))))))
+  (define (test-primes n xs)
+    (if (null? xs)
+        '()
+        (let* ([x (car xs)]
+              [result (test-prime n x xs)])
+          (if (not (null? result))
+              result
+              (test-primes n (cdr xs))))))
+  (test-primes n (my-primes-range 2 n)))
+
+(my-goldbach 28)
+;; ==> '(5 . 23)
 
 ;; 41. (**) A list of Goldbach compositions.
 
 ;; Given a range of integers by its lower and upper limit, print a list of all
 ;; even numbers and their Goldbach composition.
 
-;; Example:
-;; * (goldbach-list 9 20)
-;; 10 = 3 + 7
-;; 12 = 5 + 7
-;; 14 = 3 + 11
-;; 16 = 3 + 13
-;; 18 = 5 + 13
-;; 20 = 3 + 17
+(define (my-goldbach-list start stop)
+  (my-map (my-filter (my-range start stop)
+                     even?)
+          (lambda (n) (list n (my-goldbach n)))))
+
+(my-goldbach-list 9 20)
+;; '(
+;;   (10 (3 . 7))
+;;   (12 (5 . 7))
+;;   (14 (3 . 11))
+;;   (16 (3 . 13))
+;;   (18 (5 . 13))
+;;   (20 (3 . 17))
+;;  )
 
 ;; In most cases, if an even number is written as the sum of two prime numbers,
 ;; one of them is very small. Very rarely, the primes are both bigger than say
 ;; 50. Try to find out how many such cases there are in the range 2..3000.
 
-;; Example (for a print limit of 50):
-;; * (goldbach-list 1 2000 50)
-;; 992 = 73 + 919
-;; 1382 = 61 + 1321
-;; 1856 = 67 + 1789
-;; 1928 = 61 + 1867
+(define (my-goldbach-list-alt start stop min)
+  (let ([gold-bach-list (my-goldbach-list start stop)])
+    (my-filter gold-bach-list
+               (lambda (n)
+                 (let ([x (car (last n))]
+                       [y (cdr (last n))])
+                   (and (> x min)
+                       (> y min)))))))
+
+(my-goldbach-list-alt 3 2000 50)
+;; '(
+;;  (992  (73 .  919))
+;;  (1382 (61 . 1321))
+;;  (1856 (67 . 1789))
+;;  (1928 (61 . 1867))
+;; )
 
 ;; # Logic and Codes
 
