@@ -867,20 +867,61 @@
 ;; respectively. The example tree depicted opposite is therefore represented by
 ;; the following list:
 
-;; (a (b (d null null) (e null null)) (c null (f (g null null) null)))
+;; (a (b (d () ()) (e () ())) (c () (f (g () ()) ())))
 
 ;; Other examples are a binary tree that consists of a root node only:
 
-;; (a null null) or an empty binary tree: null.
+;; (a () ()) or an empty binary tree: ().
 
-;; You can check your predicates using these example trees. They are given as
-;; test cases in p54.lisp.
-
-;; 54A. (*) Check whether a given term represents a binary tree
+;; 54. (*) Check whether a given term represents a binary tree
 
 ;; Write a predicate istree which returns true if and only if its argument is a
-;; list representing a binary tree.  Example: * (istree (a (b null null) null)) T *
-;; (istree (a (b null null))) NULL
+;; list representing a binary tree.
+
+(define (my-is-empty-tree candidate)
+  (null? candidate))
+
+(define (my-is-nonempty-tree candidate)
+  (and (list? candidate)
+       (= (my-length candidate) 3)
+       (symbol? (car candidate))))
+
+(define (my-is-tree candidate)
+  (define (my-is-tree-aux candidate)
+    (if (my-is-empty-tree candidate)
+        #t
+        (if (not (my-is-nonempty-tree candidate))
+            #f
+            (and (my-is-tree-aux (cadr candidate))
+                 (my-is-tree-aux (caddr candidate))))))
+  (my-is-tree-aux candidate))
+
+(my-is-tree '(a () ()))
+;; ==> #t
+(my-is-tree '(b () (e () ())))
+;; ==> #t
+(my-is-tree '(b
+              (d () ())
+              (e () ())))
+;; ==> #t
+(my-is-tree '(a
+              (b
+               (d () ())
+               (e () ()))
+              (c
+               ()
+               (f (g () ())
+                  ()))))
+;; ==> #t
+
+(my-is-tree '(a b ()))
+;; ==> #f
+(my-is-tree '(a () "123"))
+;; ==> #f
+(my-is-tree '(a (b () f) ()))
+;; ==> #f
+(my-is-tree '(a (b () ())))
+;; ==> #f
 
 ;; 55. (**) Construct completely balanced binary
 ;; trees In a completely balanced binary tree, the following property holds for
