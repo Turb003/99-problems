@@ -757,13 +757,28 @@
 ;; n = 2: C(2) = ['00','01','11','10'].
 ;; n = 3: C(3) = ['000','001','011','010',´110´,´111´,´101´,´100´].
 
-;; Find out the construction rules and write a predicate with the following
-;; specification:
+;; Given an n, return the n-bit Gray code.
 
-;; % gray(N,C) :- C is the N-bit Gray code
+(define (my-gray n)
+  (define (my-gray-aux n)
+    (cond ((= n 0) '())
+          ((= n 1) '("0" "1"))
+          (else
+           (let ([intermediate-result (my-gray-aux (- n 1))])
+             (append (my-map intermediate-result
+                             (lambda (str) (string-append "0" str)))
+                     (my-map intermediate-result
+                             (lambda (str) (string-append "1" str))))))))
+  (my-gray-aux n))
 
-;; Can you apply the method of "result caching" in order to make the predicate
-;; more efficient, when it is to be used repeatedly?
+(my-gray 0)
+;; ==> '()
+(my-gray 1)
+;; ==> '("0" "1")
+(my-gray 2)
+;; ==> '("00" "01" "10" "11")
+(my-gray 3)
+;; ==> '("000" "001" "010" "011" "100" "101" "110" "111")
 
 ;; 50. (***) Huffman code.
 
@@ -771,15 +786,77 @@
 ;; detailed description of Huffman codes!
 
 ;; We suppose a set of symbols with their frequencies, given as a list of
-;; fr(S,F) terms. Example:
-;; [fr(a,45),fr(b,13),fr(c,12),fr(d,16),fr(e,9),fr(f,5)]. Our objective is to
-;; construct a list hc(S,C) terms, where C is the Huffman code word for the
-;; symbol S. In our example, the result could be Hs = [hc(a,'0'), hc(b,'101'),
-;; hc(c,'100'), hc(d,'111'), hc(e,'1101'), hc(f,'1100')]
-;; [hc(a,'01'),...etc.]. The task shall be performed by the predicate huffman/2
-;; defined as follows:
+;; (symbol frequency) pairs. Example:
+;; '((a 45) (b 13) (c 12) (d 16) (e 9) (f 5)).
 
-;; % huffman(Fs,Hs) :- Hs is the Huffman code table for the frequency table Fs
+;; Our objective is to construct a list of (symbol c) pairs, where c is the
+;; Huffman code word for the symbol. In our example, the result could be:
+;; '((a "0") (b "101") (c "100") (d "111") (e "1101") (f "1100"))
+
+;; Given a list of frequency pairs, construct the list of Huffman code pairs:
+
+(define (my-get-type node) (car node))
+
+(define (my-get-frequency node) (cadr node))
+
+(define (my-get-symbol node) (caddr node))
+
+(define (my-get-left-node node) (caddr node))
+
+(define (my-get-right-node node) (cadddr node))
+
+(define (my-make-leaf node)
+  (list 'leaf (cadr node) (car node)))
+
+(define (my-make-node node1 node2)
+  (list 'node (+ (my-get-frequency node1) (my-get-frequency node2)) node1 node2))
+
+(define (my-string-reverse str)
+  (list->string (reverse (string->list str))))
+
+(define (my-leafify frequencies)
+  (my-map frequencies (lambda (frequency) (my-make-leaf frequency))))
+
+(define (my-sort-frequencies frequencies)
+  (sort frequencies
+        (lambda (freq1 freq2)
+          (string<? (symbol->string (car freq1))
+                    (symbol->string (car freq2))))))
+
+(define (my-sort-nodes nodes)
+  (sort nodes
+        (lambda (node1 node2) (< (my-get-frequency node1) (my-get-frequency node2)))))
+
+(define (my-create-huffman-tree frequencies)
+  (define (my-create-huffman-tree-aux nodes)
+    (cond ((= 0 (my-length nodes)) '())
+          ((= 1 (my-length nodes)) (first nodes))
+          (else
+           (let ([new-node (my-make-node (first nodes) (second nodes))]
+                 [remaining-list (cddr nodes)])
+             (my-create-huffman-tree-aux
+              (my-sort-nodes (cons new-node remaining-list)))))))
+  (my-create-huffman-tree-aux (my-sort-nodes (my-leafify frequencies))))
+
+(my-create-huffman-tree '((a 45) (b 13) (c 12) (d 16) (e 9) (f 5)))
+
+(define (my-extract-huffman-codes huffman-tree)
+  (define (my-extract-huffman-codes-aux suffix node)
+    (if (eq? (my-get-type node) 'leaf)
+        (cons (my-get-symbol node) (my-string-reverse suffix))
+        (list
+         (my-extract-huffman-codes-aux (string-append "0" suffix)
+                                       (my-get-left-node node))
+         (my-extract-huffman-codes-aux (string-append "1" suffix)
+                                       (my-get-right-node node)))))
+  (my-sort-frequencies
+   (my-flatten
+    (my-extract-huffman-codes-aux "" huffman-tree))))
+
+(my-extract-huffman-codes
+ (my-create-huffman-tree
+  '((a 45) (b 13) (c 12) (d 16) (e 9) (f 5))))
+;; ==> '((a . "0") (b . "101") (c . "100") (d . "111") (e . "1101") (f . "1100"))
 
 ;; # Binary Trees
 
